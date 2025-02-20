@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Logger Pro AI</title>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .task-card:hover { transform: translateY(-2px); }
+        .rotating-gear { animation: rotate 10s linear infinite; }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div class="min-h-screen">
+        <header class="bg-white shadow-sm">
+            <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="bi bi-gear-fill text-teal-600 text-2xl rotating-gear"></i>
+                    <h1 class="text-xl font-bold text-gray-800">Work Logger Pro AI</h1>
+                </div>
+                <button id="newTaskBtn" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors">
+                    <i class="bi bi-plus-lg"></i> New Task
+                </button>
+            </nav>
+        </header>
+
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <h3 class="text-sm text-gray-500">Total Tasks</h3>
+                    <p class="text-2xl font-bold text-gray-800" id="totalTasks">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <h3 class="text-sm text-gray-500">In Progress</h3>
+                    <p class="text-2xl font-bold text-yellow-600" id="inProgressTasks">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <h3 class="text-sm text-gray-500">Pending</h3>
+                    <p class="text-2xl font-bold text-orange-600" id="pendingTasks">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <h3 class="text-sm text-gray-500">Completed</h3>
+                    <p class="text-2xl font-bold text-green-600" id="completedTasks">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold mb-4">Recent Tasks</h2>
+                <div id="taskList" class="space-y-4"></div>
+            </div>
+        </main>
+
+        <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <h2 class="text-xl font-bold mb-4">New Task</h2>
+                <form id="taskForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Task Type</label>
+                        <select id="taskType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            <option value="print-hr">Print Creation (HR)</option>
+                            <option value="print-layered">Print Creation (Layered File)</option>
+                            <option value="digital-layered">Digital File Creation (Layered)</option>
+                            <option value="retouch-complex">Image Retouching (Complex)</option>
+                            <option value="retouch-medium">Image Retouching (Medium)</option>
+                            <option value="retouch-simple">Image Retouching (Simple)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Brand Name</label>
+                        <input type="text" id="brandName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea id="taskDescription" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                        <select id="taskStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            <option value="in-progress">In Progress</option>
+                            <option value="pending">Pending</option>
+                            <option value="complete">Complete</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Start Time</label>
+                            <input type="time" id="startTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">End Time</label>
+                            <input type="time" id="endTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="taskDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">QC Details</label>
+                        <div class="mt-1 space-y-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm" name="qc">
+                                <span class="ml-2">Technical Quality</span>
+                            </label>
+                            <input type="text" placeholder="QC Person Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" id="qcPerson1">
+                            
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm" name="qc">
+                                <span class="ml-2">Visual Consistency</span>
+                            </label>
+                            <input type="text" placeholder="QC Person Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" id="qcPerson2">
+                            
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm" name="qc">
+                                <span class="ml-2">Final Review</span>
+                            </label>
+                            <input type="text" placeholder="QC Person Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" id="qcPerson3">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelTask" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        const taskModal = document.getElementById('taskModal');
+        const newTaskBtn = document.getElementById('newTaskBtn');
+        const cancelTask = document.getElementById('cancelTask');
+        const taskForm = document.getElementById('taskForm');
+        const taskList = document.getElementById('taskList');
+
+        newTaskBtn.addEventListener('click', () => {
+            taskModal.classList.remove('hidden');
+            taskModal.classList.add('flex');
+        });
+
+        cancelTask.addEventListener('click', () => {
+            taskModal.classList.add('hidden');
+            taskModal.classList.remove('flex');
+            taskForm.reset();
+        });
+
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const qcChecks = Array.from(document.querySelectorAll('input[name="qc"]:checked'));
+            const qcPersons = {
+                technical: document.getElementById('qcPerson1').value,
+                visual: document.getElementById('qcPerson2').value,
+                final: document.getElementById('qcPerson3').value
+            };
+            
+            const task = {
+                id: Date.now(),
+                type: document.getElementById('taskType').value,
+                brandName: document.getElementById('brandName').value,
+                description: document.getElementById('taskDescription').value,
+                status: document.getElementById('taskStatus').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                date: document.getElementById('taskDate').value,
+                qcChecks: qcChecks.length,
+                qcPersons: qcPersons
+            };
+            tasks.unshift(task);
+            updateTaskList();
+            updateStats();
+            taskModal.classList.add('hidden');
+            taskModal.classList.remove('flex');
+            taskForm.reset();
+        });
+
+        function updateTaskList() {
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-card bg-gray-50 p-4 rounded-lg transition-all duration-200">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-gray-800">${formatTaskType(task.type)}</h3>
+                            <p class="text-sm text-gray-600 mt-1">Brand: ${task.brandName}</p>
+                            <p class="text-sm text-gray-600 mt-1">${task.description}</p>
+                        </div>
+                        <span class="${getStatusClass(task.status)} px-2 py-1 rounded-full text-xs">${formatStatus(task.status)}</span>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-500">
+                        <div>
+                            <i class="bi bi-clock"></i> ${task.startTime} - ${task.endTime}
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar"></i> ${task.date}
+                        </div>
+                        <div>
+                            <i class="bi bi-check-circle"></i> ${task.qcChecks}/3 QC Checks
+                        </div>
+                    </div>
+                    ${task.qcChecks > 0 ? `
+                        <div class="mt-2 text-sm text-gray-500">
+                            <p>QC Team: ${Object.values(task.qcPersons).filter(Boolean).join(', ')}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalTasks').textContent = tasks.length;
+            document.getElementById('inProgressTasks').textContent = tasks.filter(t => t.status === 'in-progress').length;
+            document.getElementById('pendingTasks').textContent = tasks.filter(t => t.status === 'pending').length;
+            document.getElementById('completedTasks').textContent = tasks.filter(t => t.status === 'complete').length;
+        }
+
+        function formatTaskType(type) {
+            return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        function formatStatus(status) {
+            return status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'in-progress': 'bg-yellow-100 text-yellow-800',
+                'pending': 'bg-orange-100 text-orange-800',
+                'complete': 'bg-green-100 text-green-800'
+            };
+            return classes[status] || '';
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
